@@ -1,0 +1,142 @@
+# Continuous Integration (CI) to Build & Test & Coverage & Lint.
+# ~~
+name: CI
+on:
+  pull_request:
+    branches: [ master, '**' ]
+  push:
+    branches: [ master ]
+
+env:
+  ACTIONS_ALLOW_UNSECURE_COMMANDS: true
+
+jobs:
+  validate:
+    name: Validate Code
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: corretto
+          java-version: '11'
+          cache: 'sbt'
+
+      - name: Set up Scala and sbt
+        uses: olafurpg/setup-scala@v14
+        with:
+          java-version: '11'
+          #          scala-version: '2.13.10'
+          sbt-version: '1.8.2'
+
+      - name: Validate Code
+        run: sbt validateCode
+
+  build:
+    name: Build & Test
+    needs: [ validate ]
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        scala: [ '2.12.18', '2.13.11', '3.2.2']
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'corretto'
+          java-version: '11'
+          cache: 'sbt'
+
+      - name: Set up Scala and sbt
+        uses: olafurpg/setup-scala@v14
+        with:
+          java-version: '11'
+          #          scala-version: '2.13.10'
+          sbt-version: '1.8.2'
+
+      - name: Build & Test
+        run: sbt ++${{ matrix.scala }} clean testWithCoverage
+
+      - name: Upload coverage report (all)
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.scala }}
+          path: ${{github.workspace}}/target/scala-${{ matrix.scala }}/coverage-report
+
+  optional-build:
+    name: Build (Optional)
+    continue-on-error: ${{ matrix.experimental }}
+    needs: [ validate ]
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: true
+      matrix:
+        distribution: [ 'corretto' ]
+        jdk: [ '11' ]
+        scala: [ '2.12.18', '2.13.11', '3.2.2']
+        experimental: [ false ]
+        include:
+          - jdk: '17'
+            distribution: 'corretto'
+            scala: '2.13.11'
+            experimental: true
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: ${{ matrix.distribution }}
+          java-version: ${{ matrix.jdk }}
+          cache: 'sbt'
+
+      - name: Set up Scala and sbt
+        uses: olafurpg/setup-scala@v14
+        with:
+          java-version: ${{ matrix.jdk }}
+          #          scala-version: '2.13.10'
+          sbt-version: '1.8.2'
+
+      - name: Perform Build / Test
+        run: sbt ++${{ matrix.scala }} clean compile test
+
+  #  coverage:
+  #    name: Coverage Report
+  #    if: ${{ github.event.pull_request }}
+  #    needs: [ build ]
+  #    runs-on: ubuntu-latest
+  #    steps:
+  #      - uses: actions/download-artifact@v3
+  #        with:
+  #          name: cobertura.xml
+  #
+  #      - name: Analyzing coverage report
+  #        uses: 5monkeys/cobertura-action@master
+  #        with:
+  #          path: cobertura.xml
+  #          only_changed_files: true
+  #          fail_below_threshold: true
+  #          show_missing: true
+  #          show_line: true
+  #          show_branch: true
+  #          show_class_names: true
+  #          link_missing_lines: true
+  #          minimum_coverage: 75
+
+  ready-to-merge:
+    name: Ready to Merge
+    if: ${{ github.event.pull_request }}
+    needs: [ optional-build ]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Ready to merge.'

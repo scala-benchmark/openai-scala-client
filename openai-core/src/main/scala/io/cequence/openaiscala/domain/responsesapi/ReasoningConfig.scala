@@ -1,0 +1,25 @@
+package io.cequence.openaiscala.domain.responsesapi
+
+import io.cequence.openaiscala.domain.settings.ReasoningEffort
+import io.cequence.wsclient.domain.EnumValue
+
+/**
+ * Configuration options for reasoning models (o-series models only).
+ *
+ * @param effort
+ *   Constrains effort on reasoning for reasoning models. Reducing reasoning effort can result
+ *   in faster responses and fewer tokens used on reasoning in a response. Optional, defaults
+ *   to Medium.
+ * @param generateSummary
+ *   A summary of the reasoning performed by the model. This can be useful for debugging and
+ *   understanding the model's reasoning process. One of "concise" or "detailed". Optional.
+ * @param summary
+ *   A summary of the reasoning performed by the model. This can be useful for debugging and
+ *   understanding the model's reasoning process. One of auto, concise, or detailed. Optional.
+ */
+case class ReasoningConfig(
+  effort: Option[ReasoningEffort] = None,
+  @deprecated("Use summary instead", "1.3.0")
+  generateSummary: Option[String] = None,
+  summary: Option[String] = None
+)

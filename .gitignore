@@ -1,0 +1,13 @@
+/.idea
+target
+/*.iml
+/out
+/.idea_modules
+/.classpath
+/.project
+**/.bloop
+/.bsp
+/.metals
+/.vscode
+**/build.properties
+**/metals.sbt
