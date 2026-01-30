@@ -22,7 +22,6 @@ Verify that Java 11 is active:
 java -version
 javac -version
 ```
-⚠️ This project is not compatible with Java 17. Make sure Java 11 is selected before running sbt.
 
 ## Install sbt
 
