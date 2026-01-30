@@ -5,16 +5,27 @@ val scala212 = "2.12.18"
 val scala213 = "2.13.11"
 val scala3 = "3.2.2"
 
+ThisBuild / dependencyOverrides ++= Seq(
+  "org.typelevel" %% "cats-effect" % "2.5.5",
+  "org.typelevel" %% "cats-effect-kernel" % "2.5.5",
+  "org.typelevel" %% "cats-effect-std" % "2.5.5"
+)
+
+
 ThisBuild / organization := "io.cequence"
 ThisBuild / scalaVersion := scala212
 ThisBuild / version := "1.3.0.RC.1"
 ThisBuild / isSnapshot := false
+
+// Resolve scala-xml conflict between scala-compiler (2.1.0) and squeryl (1.0.6)
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % "always"
 
 lazy val commonSettings = Seq(
   libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.16",
   libraryDependencies += "org.scalatest" %% "scalatest" % "3.2.16" % Test,
   libraryDependencies += "org.scalatestplus" %% "mockito-4-11" % "3.2.16.0" % Test,
   libraryDependencies ++= extraTestDependencies(scalaVersion.value),
+  libraryDependencies += "org.typelevel" %% "cats-effect" % "2.5.5",
   crossScalaVersions := List(scala212, scala213, scala3)
 )
 
@@ -87,7 +98,7 @@ lazy val count_tokens = (project in file("openai-count-tokens"))
 
 lazy val guice = (project in file("openai-guice"))
   .settings(commonSettings *)
-  .dependsOn(client)
+  .dependsOn(client, core)
   .aggregate(count_tokens)
 
 lazy val examples = (project in file("openai-examples"))

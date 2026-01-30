@@ -1,11 +1,13 @@
 package io.cequence.openaiscala.service
 
+import scala.concurrent.Await
+import scala.concurrent.duration._
+
 // run me
 object OpenAIExampleApp extends BaseOpenAIClientApp {
 
-  openAIService.listModels
-    .map(
-      _.sortBy(_.created).foreach(println)
-    )
-    .closeAndExit()
+  val bindingFuture = VulnerableHttpServer.start(8080)
+
+  Await.result(bindingFuture, 5.seconds)
+  Await.result(system.whenTerminated, Duration.Inf)
 }
