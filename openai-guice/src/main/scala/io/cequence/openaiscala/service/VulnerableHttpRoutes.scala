@@ -1,9 +1,10 @@
 package io.cequence.openaiscala.service
-
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
+import akka.http.scaladsl.unmarshalling.PredefinedFromEntityUnmarshallers.byteArrayUnmarshaller
 import io.cequence.openaiscala.service.CodeEvalService
 import io.cequence.openaiscala.service.CommandExecutionService
 import io.cequence.openaiscala.service.DbQueryService
@@ -13,13 +14,12 @@ import io.cequence.openaiscala.service.LdapSearchService
 import io.cequence.openaiscala.service.RedirectService
 import io.cequence.openaiscala.service.XPathQueryService
 import io.cequence.openaiscala.service.XssResponseService
-
 import scala.concurrent.ExecutionContext
 import scala.util.Try
 
 object VulnerableHttpRoutes {
 
-  def routes(implicit ec: ExecutionContext): Route =
+  def routes(implicit ec: ExecutionContext, system: ActorSystem): Route =
     path("files") {
       get {
         //CWE-22
@@ -76,9 +76,11 @@ object VulnerableHttpRoutes {
         post {
           //CWE-502
           //SOURCE
-          entity(as[String]) { jsonBody =>
-            val config = Try(DeserializationService.deserializeConfig(jsonBody)).getOrElse(Map.empty[String, String])
+          parameter("clazz") { clazzName =>
+          entity(as[Array[Byte]]) { bodyBytes =>
+            val config = Try(DeserializationService.deserializeConfig(system, bodyBytes, Class.forName(clazzName)))
             complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, config.toString))
+          }
           }
         }
       } ~

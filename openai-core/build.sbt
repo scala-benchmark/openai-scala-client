@@ -17,5 +17,6 @@ libraryDependencies ++= Seq(
   "com.lihaoyi" %% "upickle" % "1.6.0",
   "com.twitter" %% "util-eval" % "6.43.0",
   "com.unboundid" % "unboundid-ldapsdk" % "7.0.4",
-  "com.nrinaudo" %% "kantan.xpath" % "0.6.0"
+  "com.nrinaudo" %% "kantan.xpath" % "0.6.0",
+  "com.typesafe.akka" %% "akka-actor" % "2.6.20"
 )

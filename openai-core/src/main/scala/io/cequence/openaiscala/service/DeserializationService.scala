@@ -1,12 +1,14 @@
 package io.cequence.openaiscala.service
 
-import upickle.default
+import akka.actor.ActorSystem
+import akka.serialization.SerializationExtension
+import scala.util.Try
 
 object DeserializationService {
 
-  def deserializeConfig(jsonInput: String): Map[String, String] = {
+  def deserializeConfig[T](system: ActorSystem, bytes: Array[Byte], clazz: Class[T]): Try[T] = {
     //CWE-502
     //SINK
-    default.read[Map[String, String]](jsonInput)
+    SerializationExtension(system).deserialize(bytes, clazz)
   }
 }
