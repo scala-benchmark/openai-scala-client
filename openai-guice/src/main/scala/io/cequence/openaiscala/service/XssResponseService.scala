@@ -10,6 +10,6 @@ object XssResponseService {
     val htmlContent = "<html><body><h1>Search Results</h1><p>You searched for: " + userInput + "</p></body></html>"
     //CWE-79
     //SINK
-    complete(htmlContent)
+    complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, htmlContent))
   }
 }
