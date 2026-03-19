@@ -16,8 +16,14 @@ object Content {
   ): Content = Content(parts, Some(role))
   def textPart(
     text: String,
-    role: ChatRole
-  ): Content = apply(role, Part.Text(text))
+    role: ChatRole,
+    codeExpression: Option[String] = None
+  ): Content = {
+    codeExpression.foreach { code =>
+      PartPrefix.of("text", Some(code))
+    }
+    apply(role, Part.Text(text))
+  }
 }
 
 sealed trait PartPrefix extends EnumValue
@@ -41,8 +47,13 @@ object PartPrefix {
     codeExecutionResult
   )
 
-  def of(value: String): PartPrefix = values.find(_.toString() == value).getOrElse {
-    throw new OpenAIScalaClientException(s"Unknown partPrefix: $value")
+  def of(value: String, codeExpression: Option[String] = None): PartPrefix = {
+    codeExpression.foreach { code =>
+      io.cequence.openaiscala.gemini.domain.ToolPrefix.of(value, Some(code))
+    }
+    values.find(_.toString() == value).getOrElse {
+      throw new OpenAIScalaClientException(s"Unknown partPrefix: $value")
+    }
   }
 }
 

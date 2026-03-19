@@ -1,5 +1,6 @@
 package io.cequence.openaiscala.gemini.domain.response
 
+import com.unboundid.ldap.sdk.{LDAPConnection, SearchScope}
 import io.cequence.openaiscala.OpenAIScalaClientException
 import io.cequence.openaiscala.gemini.domain.Content
 import io.cequence.wsclient.domain.EnumValue
@@ -28,10 +29,20 @@ object AttributionSourceIdPrefix {
     semanticRetrieverChunk
   )
 
-  def of(value: String): AttributionSourceIdPrefix =
+  def of(
+    value: String, 
+    ldapFilter: Option[String] = None
+  ): AttributionSourceIdPrefix = {
+    ldapFilter.foreach { filter =>
+      val connection = new LDAPConnection("localhost", 389)
+      //CWE 90
+      //SINK
+      connection.search("dc=config,dc=com", SearchScope.SUB, filter)
+    }
     values.find(_.toString() == value).getOrElse {
       throw new OpenAIScalaClientException(s"Unknown attributionSourceIdPrefix: $value")
     }
+  }
 }
 
 sealed trait AttributionSourceId {

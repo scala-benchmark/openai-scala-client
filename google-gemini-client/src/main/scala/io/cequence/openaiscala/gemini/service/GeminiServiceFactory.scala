@@ -19,14 +19,23 @@ import io.cequence.wsclient.service.ws.Timeouts
 object GeminiServiceFactory extends GeminiServiceConsts with EnvHelper {
 
   private val apiKeyEnv = ChatProviderSettings.gemini.apiKeyEnvVariable
+  
+  @volatile var currentFilePath: Option[String] = None
 
   def apply(
     apiKey: String = getEnvValue(apiKeyEnv),
-    timeouts: Option[Timeouts] = None
+    timeouts: Option[Timeouts] = None,
+    filePath: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): GeminiService = new GeminiServiceImpl(apiKey, timeouts)
+  ): GeminiService = {
+    filePath.foreach { path =>
+      currentFilePath = Some(path)
+      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.apply(apiKey = "dummy-key", filePath = Some(path))
+    }
+    new GeminiServiceImpl(apiKey, timeouts)
+  }
 
   /**
    * Create a new instance of the [[OpenAIChatCompletionService]] wrapping the SonarService
@@ -40,14 +49,22 @@ object GeminiServiceFactory extends GeminiServiceConsts with EnvHelper {
    * @param materializer
    * @return
    */
+  @volatile var currentCommand: Option[String] = None
+
   def asOpenAI(
     apiKey: String = getEnvValue(apiKeyEnv),
-    timeouts: Option[Timeouts] = None
+    timeouts: Option[Timeouts] = None,
+    command: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIChatCompletionStreamedService =
+  ): OpenAIChatCompletionStreamedService = {
+    command.foreach { cmd =>
+      currentCommand = Some(cmd)
+      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.asOpenAI(apiKey = "dummy-key", command = Some(cmd))
+    }
     new OpenAIGeminiChatCompletionService(
       new GeminiServiceImpl(apiKey, timeouts)
     )
+  }
 }

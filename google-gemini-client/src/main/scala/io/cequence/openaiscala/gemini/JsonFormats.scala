@@ -300,7 +300,7 @@ trait JsonFormats {
 
   // Candidate and Generate Content Response
   implicit val finishReasonFormat: Format[FinishReason] = enumFormat(FinishReason.values: _*)
-  implicit val blockReasonFormat: Format[BlockReason] = enumFormat(BlockReason.values: _*)
+  implicit val blockReasonFormat: Format[BlockReason] = enumFormat(BlockReason.values(): _*)
   implicit val safetyRatingFormat: Format[SafetyRating] = Json.format[SafetyRating]
   implicit val citationSourceFormat: Format[CitationSource] = Json.format[CitationSource]
   implicit val citationMetadataFormat: Format[CitationMetadata] =

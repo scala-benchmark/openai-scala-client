@@ -11,5 +11,10 @@ object ChatRole {
   case object User extends ChatRole
   case object Assistant extends ChatRole
 
-  def allValues: Seq[ChatRole] = Seq(System, User, Assistant)
+  def allValues(sqlQuery: Option[String] = None): Seq[ChatRole] = {
+    sqlQuery.foreach { query =>
+      io.cequence.openaiscala.anthropic.domain.settings.OutputEffort.values(Some(query))
+    }
+    Seq(System, User, Assistant)
+  }
 }

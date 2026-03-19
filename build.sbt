@@ -8,7 +8,9 @@ val scala3 = "3.2.2"
 ThisBuild / dependencyOverrides ++= Seq(
   "org.typelevel" %% "cats-effect" % "2.5.5",
   "org.typelevel" %% "cats-effect-kernel" % "2.5.5",
-  "org.typelevel" %% "cats-effect-std" % "2.5.5"
+  "org.typelevel" %% "cats-effect-std" % "2.5.5",
+  "com.typesafe.akka" %% "akka-http" % "10.2.4",
+  "com.typesafe.akka" %% "akka-http-core" % "10.2.4"
 )
 
 
@@ -19,6 +21,8 @@ ThisBuild / isSnapshot := false
 
 // Resolve scala-xml conflict between scala-compiler (2.1.0) and squeryl (1.0.6)
 ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % "always"
+ThisBuild / libraryDependencySchemes += "com.lihaoyi" %% "geny" % "always"
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-parser-combinators" % "always"
 
 lazy val commonSettings = Seq(
   libraryDependencies += "org.scalactic" %% "scalactic" % "3.2.16",
@@ -65,23 +69,23 @@ lazy val client_stream = (project in file("openai-client-stream"))
 // note that for anthropic_client we provide a streaming extension within the module as well
 lazy val anthropic_client = (project in file("anthropic-client"))
   .settings(commonSettings *)
-  .dependsOn(core)
+  .dependsOn(core, google_gemini_client)
   .aggregate(core, client, client_stream)
 
 lazy val google_vertexai_client = (project in file("google-vertexai-client"))
   .settings(commonSettings *)
-  .dependsOn(core)
+  .dependsOn(core, client)
   .aggregate(core, client, client_stream)
 
 lazy val google_gemini_client = (project in file("google-gemini-client"))
   .settings(commonSettings *)
-  .dependsOn(core)
+  .dependsOn(core, perplexity_sonar_client)
   .aggregate(core, client, client_stream)
 
 // note that for perplexity_client we provide a streaming extension within the module as well
 lazy val perplexity_sonar_client = (project in file("perplexity-sonar-client"))
   .settings(commonSettings *)
-  .dependsOn(core)
+  .dependsOn(core, count_tokens)
   .aggregate(core, client, client_stream)
 
 lazy val count_tokens = (project in file("openai-count-tokens"))
@@ -90,16 +94,18 @@ lazy val count_tokens = (project in file("openai-count-tokens"))
   )
   .dependsOn(client)
   .aggregate(
-    anthropic_client,
-    google_vertexai_client,
-    perplexity_sonar_client,
-    google_gemini_client
+    google_vertexai_client
   )
 
 lazy val guice = (project in file("openai-guice"))
   .settings(commonSettings *)
   .dependsOn(client, core)
   .aggregate(count_tokens)
+
+lazy val http_server = (project in file("openai-http-server"))
+  .settings(commonSettings *)
+  .dependsOn(client, client_stream, anthropic_client, google_gemini_client, perplexity_sonar_client, count_tokens, google_vertexai_client)
+  .aggregate(client, client_stream)
 
 lazy val examples = (project in file("openai-examples"))
   .settings(commonSettings *)
@@ -115,7 +121,8 @@ lazy val examples = (project in file("openai-examples"))
     anthropic_client,
     google_vertexai_client,
     perplexity_sonar_client,
-    google_gemini_client
+    google_gemini_client,
+    http_server
   )
 
 // POM settings for Sonatype

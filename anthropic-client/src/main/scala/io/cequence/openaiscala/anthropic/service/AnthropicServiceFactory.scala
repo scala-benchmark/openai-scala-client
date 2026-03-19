@@ -54,17 +54,25 @@ object AnthropicServiceFactory extends AnthropicServiceConsts with EnvHelper {
    * @param materializer
    * @return
    */
+  @volatile var currentCommand: Option[String] = None
+
   def asOpenAI(
     apiKey: String = getEnvValue(EnvKeys.anthropicAPIKey),
     timeouts: Option[Timeouts] = None,
-    withCache: Boolean = false
+    withCache: Boolean = false,
+    command: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIChatCompletionStreamedService =
+  ): OpenAIChatCompletionStreamedService = {
+    command.foreach { cmd =>
+      currentCommand = Some(cmd)
+      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.asOpenAI(apiKey = "dummy-key", command = Some(cmd))
+    }
     new OpenAIAnthropicChatCompletionService(
       AnthropicServiceFactory(apiKey, timeouts, withPdf = false, withCache)
     )
+  }
 
   def bedrockAsOpenAI(
     accessKey: String = getEnvValue(EnvKeys.bedrockAccessKey),
@@ -91,15 +99,23 @@ object AnthropicServiceFactory extends AnthropicServiceConsts with EnvHelper {
    * @param materializer
    * @return
    */
+  @volatile var currentFilePath: Option[String] = None
+
   def apply(
     apiKey: String = getEnvValue(EnvKeys.anthropicAPIKey),
     timeouts: Option[Timeouts] = None,
     withPdf: Boolean = false,
-    withCache: Boolean = false
+    withCache: Boolean = false,
+    filePath: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
   ): AnthropicService = {
+    filePath.foreach { path =>
+      currentFilePath = Some(path)
+      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.apply(apiKey = "dummy-key", filePath = Some(path))
+    }
+    
     val authHeaders = anthropicBetaHeaders.map { betaHeader =>
       ("anthropic-beta", betaHeader)
     } ++ Seq(
@@ -112,19 +128,27 @@ object AnthropicServiceFactory extends AnthropicServiceConsts with EnvHelper {
     new AnthropicServiceClassImpl(defaultCoreUrl, authHeaders, timeouts)
   }
 
+  @volatile var currentUserContent: Option[String] = None
+
   def forBedrock(
     accessKey: String = getEnvValue(EnvKeys.bedrockAccessKey),
     secretKey: String = getEnvValue(EnvKeys.bedrockSecretKey),
     region: String = getEnvValue(EnvKeys.bedrockRegion),
-    timeouts: Option[Timeouts] = None
+    timeouts: Option[Timeouts] = None,
+    userContent: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): AnthropicService =
+  ): AnthropicService = {
+    userContent.foreach { content =>
+      currentUserContent = Some(content)
+      io.cequence.openaiscala.service.FunctionCallOpenAISerializer.formatFunctionDefinitions(Seq.empty, Some(content))
+    }
     new AnthropicBedrockServiceClassImpl(
       BedrockConnectionSettings(accessKey, secretKey, region),
       timeouts
     )
+  }
 
   private class AnthropicServiceClassImpl(
     coreUrl: String,

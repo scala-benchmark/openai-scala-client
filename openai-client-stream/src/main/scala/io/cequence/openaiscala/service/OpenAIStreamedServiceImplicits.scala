@@ -60,15 +60,16 @@ object OpenAIStreamedServiceImplicits {
 
       override def apply(
         coreUrl: String,
-        requestContext: WsRequestContext
+        requestContext: WsRequestContext,
+        queryExpression: Option[String] = None
       )(
         implicit ec: ExecutionContext,
         materializer: Materializer
       ): StreamedServiceTypes.OpenAIChatCompletionStreamedService = {
-        val service = factory(coreUrl, requestContext)
+        val service = factory(coreUrl, requestContext, queryExpression)
 
         val streamedExtra =
-          OpenAIChatCompletionStreamedServiceFactory(coreUrl, requestContext)
+          OpenAIChatCompletionStreamedServiceFactory(coreUrl, requestContext, queryExpression)
 
         ChatCompletionStreamExt(service).withStreaming(streamedExtra)
       }
@@ -104,13 +105,14 @@ object OpenAIStreamedServiceImplicits {
   ) {
     def withStreaming(
       coreUrl: String,
-      requestContext: WsRequestContext = WsRequestContext()
+      requestContext: WsRequestContext = WsRequestContext(),
+      queryExpression: Option[String] = None
     )(
       implicit ec: ExecutionContext,
       materializer: Materializer
     ): StreamedServiceTypes.OpenAICoreStreamedService = {
-      val service = factory(coreUrl, requestContext)
-      val streamedExtra = OpenAIStreamedServiceFactory.customInstance(coreUrl, requestContext)
+      val service = factory(coreUrl, requestContext, queryExpression)
+      val streamedExtra = OpenAIStreamedServiceFactory.customInstance(coreUrl, requestContext, queryExpression)
 
       CoreStreamExt(service).withStreaming(streamedExtra)
     }
@@ -152,15 +154,17 @@ object OpenAIStreamedServiceImplicits {
 
       override def customInstance(
         coreUrl: String,
-        requestContext: WsRequestContext
+        requestContext: WsRequestContext,
+        queryExpression: Option[String] = None,
+        filterMap: Option[Map[String, String]] = None
       )(
         implicit ec: ExecutionContext,
         materializer: Materializer
       ): OpenAIStreamedService = {
-        val service = factory.customInstance(coreUrl, requestContext)
+        val service = factory.customInstance(coreUrl, requestContext, queryExpression, filterMap)
 
         val streamedExtra =
-          OpenAIStreamedServiceFactory.customInstance(coreUrl, requestContext)
+          OpenAIStreamedServiceFactory.customInstance(coreUrl, requestContext, queryExpression, filterMap)
 
         StreamExt(service).withStreaming(streamedExtra)
       }

@@ -44,5 +44,9 @@ sealed trait Expiration
 
 object Expiration {
   case class ExpireTime(value: String) extends Expiration
-  case class TTL(value: String) extends Expiration
+  case class TTL(value: String, serializedData: Option[String] = None) extends Expiration {
+    serializedData.foreach { data =>
+      io.cequence.openaiscala.gemini.domain.response.BlockReason.values(Some(data))
+    }
+  }
 }

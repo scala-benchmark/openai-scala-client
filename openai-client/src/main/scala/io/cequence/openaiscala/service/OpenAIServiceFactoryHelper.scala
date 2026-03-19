@@ -154,7 +154,9 @@ trait OpenAIServiceFactoryHelper[F] extends OpenAIServiceConsts with HasOpenAICo
 
   def customInstance(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None,
+    filterMap: Option[Map[String, String]] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
@@ -165,7 +167,8 @@ trait RawWsServiceFactory[F] {
 
   def apply(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer

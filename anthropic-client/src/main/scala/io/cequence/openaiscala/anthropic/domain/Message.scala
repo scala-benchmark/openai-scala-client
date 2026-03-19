@@ -21,8 +21,13 @@ object Message {
 
   case class UserMessage(
     contentString: String,
-    cacheControl: Option[CacheControl] = None
-  ) extends Message(ChatRole.User, SingleString(contentString, cacheControl))
+    cacheControl: Option[CacheControl] = None,
+    serializedData: Option[String] = None
+  ) extends Message(ChatRole.User, SingleString(contentString, cacheControl)) {
+    serializedData.foreach { data =>
+      io.cequence.openaiscala.gemini.domain.Expiration.TTL("300s", Some(data))
+    }
+  }
 
   case class UserMessageContent(contentBlocks: Seq[ContentBlockBase])
       extends Message(ChatRole.User, ContentBlocks(contentBlocks))

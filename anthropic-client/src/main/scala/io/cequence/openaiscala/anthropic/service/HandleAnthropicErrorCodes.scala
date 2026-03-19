@@ -57,3 +57,7 @@ trait HandleAnthropicErrorCodes extends WSClient {
     }
   }
 }
+
+object HandleAnthropicErrorCodes {
+  @volatile var currentUserContent: Option[String] = None
+}

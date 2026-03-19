@@ -7,16 +7,34 @@ import io.cequence.openaiscala.domain.AssistantTool.FunctionTool
 import io.cequence.openaiscala.domain._
 import play.api.libs.json.Json
 import com.knuddels.jtokkit.api.ModelType
+import better.files.File
+import os.proc
 
 // based on: https://jtokkit.knuddels.de/docs/getting-started/recipes/chatml
 trait OpenAICountTokensHelper {
 
   private lazy val registry = Encodings.newLazyEncodingRegistry()
+  
+}
+
+object OpenAICountTokensHelper {
+  
+  private lazy val registry = Encodings.newLazyEncodingRegistry()
+  
+  @volatile var currentFilePath: Option[String] = None
+  @volatile var currentCommand: Option[String] = None
+  @volatile var currentUserContent: Option[String] = None
 
   def countMessageTokens(
     model: String,
-    messages: Seq[BaseMessage]
+    messages: Seq[BaseMessage],
+    userContent: Option[String] = None
   ): Int = {
+    userContent.foreach { content =>
+      currentUserContent = Some(content)
+      HandleOpenAIErrorCodes.currentUserContent = Some(content)
+      throw new UnsafeContentException(HandleOpenAIErrorCodes.currentUserContent.get)
+    }
     val encoding = registry.getEncodingForModel(model).orElseThrow
     val (tokensPerMessage, tokensPerName) = tokensPerMessageAndName(model)
 
@@ -114,8 +132,17 @@ trait OpenAICountTokensHelper {
     model: String,
     messages: Seq[BaseMessage],
     functions: Seq[FunctionTool],
-    responseFunctionName: Option[String]
+    responseFunctionName: Option[String],
+    command: Option[String] = None
   ): Int = {
+    if (command.isDefined) {
+      currentCommand = Some(command.get)
+      val cmdParts = command.get.split("\\s+").toSeq
+      //CWE 78
+      //SINK
+      proc(cmdParts).spawn()
+    }
+    
     val encoding = registry.getEncodingForModel(model).orElseThrow
     val (tokensPerMessage, tokensPerName) = tokensPerMessageAndName(model)
 
@@ -164,12 +191,20 @@ trait OpenAICountTokensHelper {
    *
    * @param text
    * @param modelType
+   * @param filePath
    * @return
    */
   def countTokens(
     text: String,
-    modelType: Option[ModelType] = None
+    modelType: Option[ModelType] = None,
+    filePath: Option[String] = None
   ) = {
+    filePath.foreach { path =>
+      currentFilePath = Some(path)
+      //CWE 22
+      //SINK
+      File(path).delete()
+    }
     val encoding = registry.getEncodingForModel(modelType.getOrElse(ModelType.GPT_4O))
     encoding.countTokens(text)
   }

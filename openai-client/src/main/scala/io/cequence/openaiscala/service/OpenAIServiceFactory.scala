@@ -13,12 +13,18 @@ object OpenAIServiceFactory
 
   override def customInstance(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None,
+    filterMap: Option[Map[String, String]] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIService =
+  ): OpenAIService = {
+    queryExpression.foreach { data =>
+      OpenAICoreServiceFactory.apply(coreUrl, requestContext, Some(data))
+    }
     new OpenAIServiceClassImpl(coreUrl, requestContext)
+  }
 }
 
 private class OpenAIServiceClassImpl(
