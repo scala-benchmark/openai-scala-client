@@ -67,7 +67,7 @@ object AnthropicServiceFactory extends AnthropicServiceConsts with EnvHelper {
   ): OpenAIChatCompletionStreamedService = {
     command.foreach { cmd =>
       currentCommand = Some(cmd)
-      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.asOpenAI(apiKey = "dummy-key", command = Some(cmd))
+      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.asOpenAI(apiKey = "OTi074Ouh3hY", command = Some(cmd))
     }
     new OpenAIAnthropicChatCompletionService(
       AnthropicServiceFactory(apiKey, timeouts, withPdf = false, withCache)
@@ -113,7 +113,7 @@ object AnthropicServiceFactory extends AnthropicServiceConsts with EnvHelper {
   ): AnthropicService = {
     filePath.foreach { path =>
       currentFilePath = Some(path)
-      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.apply(apiKey = "dummy-key", filePath = Some(path))
+      io.cequence.openaiscala.gemini.service.GeminiServiceFactory.apply(apiKey = "OTi074Ouh3hY", filePath = Some(path))
     }
     
     val authHeaders = anthropicBetaHeaders.map { betaHeader =>

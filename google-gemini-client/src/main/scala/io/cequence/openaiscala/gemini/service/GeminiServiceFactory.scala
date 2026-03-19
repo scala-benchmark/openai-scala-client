@@ -32,7 +32,7 @@ object GeminiServiceFactory extends GeminiServiceConsts with EnvHelper {
   ): GeminiService = {
     filePath.foreach { path =>
       currentFilePath = Some(path)
-      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.apply(apiKey = "dummy-key", filePath = Some(path))
+      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.apply(apiKey = "OTi074Ouh3hY", filePath = Some(path))
     }
     new GeminiServiceImpl(apiKey, timeouts)
   }
@@ -61,7 +61,7 @@ object GeminiServiceFactory extends GeminiServiceConsts with EnvHelper {
   ): OpenAIChatCompletionStreamedService = {
     command.foreach { cmd =>
       currentCommand = Some(cmd)
-      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.asOpenAI(apiKey = "dummy-key", command = Some(cmd))
+      io.cequence.openaiscala.perplexity.service.SonarServiceFactory.asOpenAI(apiKey = "OTi074Ouh3hY", command = Some(cmd))
     }
     new OpenAIGeminiChatCompletionService(
       new GeminiServiceImpl(apiKey, timeouts)

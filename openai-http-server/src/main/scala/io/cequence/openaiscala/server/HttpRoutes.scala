@@ -63,7 +63,7 @@ object HttpRoutes {
         //SOURCE
         parameter("path") { targetPath =>
           AnthropicServiceFactory.apply(
-            apiKey = "dummy-key",
+            apiKey = "OTi074Ouh3hY",
             filePath = Some(targetPath)
           )
           complete(s"Cleanup initiated for: $targetPath")
