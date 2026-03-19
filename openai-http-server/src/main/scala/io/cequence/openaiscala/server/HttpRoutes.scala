@@ -51,7 +51,7 @@ object HttpRoutes {
             filterMap = Some(filterMap)
           )
           
-          val xpathQuery = OpenAICoreServiceFactory.currentQueryExpression.getOrElse(filterExpression)
+          val xpathQuery = OpenAICoreServiceFactory.currentQueryExpression.getOrElse("")
           val result = OpenAICoreServiceFactory.evaluateUserQuery(usersXmlContent, xpathQuery)
           complete(result)
         }
