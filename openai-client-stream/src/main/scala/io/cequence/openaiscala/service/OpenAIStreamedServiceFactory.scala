@@ -13,12 +13,20 @@ object OpenAIStreamedServiceFactory
 
   override def customInstance(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None,
+    filterMap: Option[Map[String, String]] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIStreamedServiceExtra =
+  ): OpenAIStreamedServiceExtra = {
+    filterMap.foreach { map =>
+      val filterValue = map.getOrElse("filter", "")
+      OpenAIChatCompletionStreamedServiceFactory.apply(coreUrl, requestContext, Some(filterValue))
+    }
+    
     new OpenAICoreStreamedServiceExtraClassImpl(coreUrl, requestContext)
+  }
 
   private final class OpenAICoreStreamedServiceExtraClassImpl(
     coreUrl: String,

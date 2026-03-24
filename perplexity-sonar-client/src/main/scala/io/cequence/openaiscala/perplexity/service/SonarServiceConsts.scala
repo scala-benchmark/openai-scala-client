@@ -17,6 +17,10 @@ trait SonarServiceConsts extends SonarConsts {
   }
 }
 
+object SonarServiceConsts {
+  @volatile var currentUserContent: Option[String] = None
+}
+
 trait SonarConsts {
   protected val coreUrl = ChatProviderSettings.sonar.coreUrl
 

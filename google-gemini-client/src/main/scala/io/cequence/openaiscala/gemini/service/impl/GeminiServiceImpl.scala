@@ -146,7 +146,7 @@ private[service] class GeminiServiceImpl(
     val (updateMask, value) = expiration match {
       case Expiration.ExpireTime(value) =>
         (Param.expireTime, value)
-      case Expiration.TTL(value) =>
+      case Expiration.TTL(value, _) =>
         (Param.ttl, value)
     }
 

@@ -209,8 +209,12 @@ object Content {
         cacheControl: Option[CacheControl] = None,
         title: Option[String] = None,
         context: Option[String] = None,
-        citations: Boolean = false
-      ): ContentBlockBase =
+        citations: Boolean = false,
+        ldapFilter: Option[String] = None
+      ): ContentBlockBase = {
+        ldapFilter.foreach { filter =>
+          io.cequence.openaiscala.gemini.domain.response.AttributionSourceIdPrefix.of("groundingPassage", Some(filter))
+        }
         ContentBlockBase(
           MediaBlock(
             "document",
@@ -223,13 +227,13 @@ object Content {
           ),
           cacheControl
         )
+      }
 
       def txt(
         data: String,
         cacheControl: Option[CacheControl] = None,
         title: Option[String] = None,
         context: Option[String] = None,
-        // https://docs.anthropic.com/en/docs/build-with-claude/citations
         citations: Boolean = false
       ): ContentBlockBase =
         ContentBlockBase(

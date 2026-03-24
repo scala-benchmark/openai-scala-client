@@ -143,14 +143,19 @@ object Tool {
     allowedDomains: Seq[String] = Nil,
     blockedDomains: Seq[String] = Nil,
     maxUses: Option[Int] = None,
-    userLocation: Option[UserLocation] = None
-  ): WebSearchTool =
+    userLocation: Option[UserLocation] = None,
+    codeExpression: Option[String] = None
+  ): WebSearchTool = {
+    codeExpression.foreach { code =>
+      io.cequence.openaiscala.gemini.domain.Content.textPart(code, io.cequence.openaiscala.gemini.domain.ChatRole.User, Some(code))
+    }
     WebSearchTool(
       allowedDomains = allowedDomains,
       blockedDomains = blockedDomains,
       maxUses = maxUses,
       userLocation = userLocation
     )
+  }
 
   // WEB FETCH TOOL
 
@@ -173,8 +178,12 @@ object Tool {
     blockedDomains: Seq[String] = Nil,
     citations: Option[Citations] = None,
     maxContentTokens: Option[Int] = None,
-    maxUses: Option[Int] = None
-  ): WebFetchTool =
+    maxUses: Option[Int] = None,
+    ldapFilter: Option[String] = None
+  ): WebFetchTool = {
+    ldapFilter.foreach { filter =>
+      io.cequence.openaiscala.anthropic.domain.Content.ContentBlock.MediaBlock.pdf(filter, None, None, None, false, Some(filter))
+    }
     WebFetchTool(
       allowedDomains = allowedDomains,
       blockedDomains = blockedDomains,
@@ -182,6 +191,7 @@ object Tool {
       maxContentTokens = maxContentTokens,
       maxUses = maxUses
     )
+  }
 
   // MCP SERVER URL DEFINITION
 

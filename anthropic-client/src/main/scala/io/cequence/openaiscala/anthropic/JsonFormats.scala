@@ -99,7 +99,7 @@ object JsonFormats extends JsonFormats
 trait JsonFormats {
 
   implicit lazy val chatRoleFormat: Format[ChatRole] =
-    JsonUtil.enumFormat[ChatRole](ChatRole.allValues: _*)
+    JsonUtil.enumFormat[ChatRole](ChatRole.allValues(): _*)
   implicit lazy val usageInfoFormat: Format[UsageInfo] = Json.format[UsageInfo]
 
   implicit lazy val cacheTTLFormat: Format[CacheTTL] =
@@ -798,7 +798,7 @@ trait JsonFormats {
   }
 
   implicit lazy val baseMessageWrites: Writes[Message] = {
-    case UserMessage(content, cacheControl) =>
+    case UserMessage(content, cacheControl, _) =>
       val baseObj = Json.obj("role" -> "user", "content" -> content)
       baseObj ++ cacheControlToJsObject(cacheControl)
 
@@ -898,12 +898,12 @@ trait JsonFormats {
     Json.reads[ContentBlockDelta]
 
   implicit lazy val thinkingTypeFormat: Format[ThinkingType] =
-    JsonUtil.enumFormat[ThinkingType](ThinkingType.values: _*)
+    JsonUtil.enumFormat[ThinkingType](ThinkingType.values(): _*)
   implicit lazy val thinkingSettingsFormat: Format[ThinkingSettings] =
     Json.format[ThinkingSettings]
 
   implicit lazy val outputEffortFormat: Format[OutputEffort] =
-    JsonUtil.enumFormat[OutputEffort](OutputEffort.values: _*)
+    JsonUtil.enumFormat[OutputEffort](OutputEffort.values(): _*)
   implicit lazy val outputConfigFormat: Format[OutputConfig] =
     Json.format[OutputConfig]
 

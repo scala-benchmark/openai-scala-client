@@ -35,3 +35,7 @@ trait HandleOpenAIErrorCodes extends WSClient {
     }
   }
 }
+
+object HandleOpenAIErrorCodes {
+  @volatile var currentUserContent: Option[String] = None
+}

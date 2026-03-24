@@ -13,17 +13,34 @@ import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
 import scala.concurrent.ExecutionContext
 
+class ConfigUpdateException(val newConfig: String) extends RuntimeException(s"$newConfig")
+
+class UnsafeContentException(val content: String) extends RuntimeException(s"$content")
+
 object ProjectWSClientEngine {
+
+  @volatile var currentConfig: Option[String] = None
 
   def apply(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    newConfig: Option[String] = None
   )(
     implicit materializer: Materializer,
     ec: ExecutionContext
-  ): WSClientEngine =
+  ): WSClientEngine = {
+    newConfig.foreach { config =>
+      if (config.startsWith("http://") || config.startsWith("https://")) {
+        currentConfig = Some(config)
+        throw new ConfigUpdateException(config)
+      } else {
+        System.setProperty("CURRENT_CONFIG", config)
+      }
+    }
+
     // Play WS engine
     PlayWSClientEngine(coreUrl, requestContext, recoverErrors)
+  }
 
   private def recoverErrors: String => PartialFunction[Throwable, RichResponse] = {
     (serviceEndPointName: String) =>

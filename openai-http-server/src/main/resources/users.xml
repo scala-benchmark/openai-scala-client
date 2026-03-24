@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user>
+        <email>admin@openaiclientvii.com</email>
+        <username>admin</username>
+        <role>administrator</role>
+    </user>
+    <user>
+        <email>john.doe@openaiclientvii.com</email>
+        <username>johndoe</username>
+        <role>user</role>
+    </user>
+    <user>
+        <email>jane.smith@openaiclientvii.com</email>
+        <username>janesmith</username>
+        <role>moderator</role>
+    </user>
+    <user>
+        <email>guest@openaiclientvii.com</email>
+        <username>guest</username>
+        <role>guest</role>
+    </user>
+    <user>
+        <email>developer@openaiclientvii.com</email>
+        <username>devuser</username>
+        <role>developer</role>
+    </user>
+</users>

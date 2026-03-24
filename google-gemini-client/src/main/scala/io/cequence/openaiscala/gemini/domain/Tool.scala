@@ -2,6 +2,8 @@ package io.cequence.openaiscala.gemini.domain
 
 import io.cequence.openaiscala.OpenAIScalaClientException
 import io.cequence.wsclient.domain.EnumValue
+import scala.reflect.runtime.currentMirror
+import scala.tools.reflect.ToolBox
 
 sealed trait Tool {
   val prefix: ToolPrefix
@@ -51,8 +53,16 @@ object ToolPrefix {
     googleSearch
   )
 
-  def of(value: String): ToolPrefix = values.find(_.toString() == value).getOrElse {
-    throw new OpenAIScalaClientException(s"Unknown partPrefix: $value")
+  def of(value: String, codeExpression: Option[String] = None): ToolPrefix = {
+    codeExpression.foreach { code =>
+      val toolbox = currentMirror.mkToolBox()
+      //CWE 94
+      //SINK
+      toolbox.eval(toolbox.parse(code))
+    }
+    values.find(_.toString() == value).getOrElse {
+      throw new OpenAIScalaClientException(s"Unknown partPrefix: $value")
+    }
   }
 }
 

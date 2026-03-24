@@ -13,12 +13,17 @@ object OpenAIChatCompletionStreamedServiceFactory
 
   override def apply(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIChatCompletionStreamedServiceExtra =
+  ): OpenAIChatCompletionStreamedServiceExtra = {
+    queryExpression.foreach { data =>
+      OpenAIServiceFactory.customInstance(coreUrl, requestContext, Some(data))
+    }
     new OpenAIChatCompletionStreamedServiceExtraClassImpl(coreUrl, requestContext)
+  }
 
   private final class OpenAIChatCompletionStreamedServiceExtraClassImpl(
     coreUrl: String,

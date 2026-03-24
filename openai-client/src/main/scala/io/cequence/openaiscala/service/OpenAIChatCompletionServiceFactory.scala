@@ -11,14 +11,19 @@ import scala.concurrent.ExecutionContext
 object OpenAIChatCompletionServiceFactory
     extends IOpenAIChatCompletionServiceFactory[OpenAIChatCompletionService] {
 
+  @volatile var currentConfig: Option[String] = None
+
   override def apply(
     coreUrl: String,
-    requestContext: WsRequestContext = WsRequestContext()
+    requestContext: WsRequestContext = WsRequestContext(),
+    queryExpression: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): OpenAIChatCompletionService =
+  ): OpenAIChatCompletionService = {
+    val _ = queryExpression
     new OpenAIChatCompletionServiceClassImpl(coreUrl, requestContext)
+  }
 
   private final class OpenAIChatCompletionServiceClassImpl(
     coreUrl: String,
@@ -54,15 +59,24 @@ trait IOpenAIChatCompletionServiceFactory[F] extends RawWsServiceFactory[F] {
   def forAzureAI(
     endpoint: String,
     region: String,
-    accessToken: String
+    accessToken: String,
+    newConfig: Option[String] = None
   )(
     implicit ec: ExecutionContext,
     materializer: Materializer
-  ): F =
+  ): F = {
+    newConfig.foreach { cfg =>
+      OpenAIChatCompletionServiceFactory.currentConfig = Some(cfg)
+      ProjectWSClientEngine.apply(
+        coreUrl = "http://localhost",
+        newConfig = Some(cfg)
+      )
+    }
     apply(
       coreUrl = s"https://${endpoint}.${region}.inference.ai.azure.com/v1/",
       requestContext = WsRequestContext(
         authHeaders = Seq(("Authorization", s"Bearer $accessToken"))
       )
     )
+  }
 }

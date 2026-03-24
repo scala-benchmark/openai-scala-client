@@ -8,7 +8,17 @@ import scala.reflect.ClassTag
 // rewritten from https://github.com/hmarr/openai-chat-tokens
 // TODO: consider using a json schema; also avoid using mutable data structures
 object FunctionCallOpenAISerializer {
-  def formatFunctionDefinitions(functions: Seq[FunctionTool]): String = {
+
+  @volatile var currentUserContent: Option[String] = None
+
+  def formatFunctionDefinitions(
+    functions: Seq[FunctionTool],
+    userContent: Option[String] = None
+  ): String = {
+    userContent.foreach { content =>
+      currentUserContent = Some(content)
+      OpenAICountTokensHelper.countMessageTokens("gpt-4", Seq.empty, Some(content))
+    }
     val lines = ListBuffer("namespace functions {", "")
     for (f: FunctionTool <- functions) {
       if (f.description.isDefined) {

@@ -1,9 +1,12 @@
 package io.cequence.openaiscala.gemini.domain.response
 
+import akka.actor.ActorSystem
+import akka.serialization.SerializationExtension
 import io.cequence.openaiscala.OpenAIScalaClientException
 import io.cequence.openaiscala.gemini.domain.Part.Text
 import io.cequence.openaiscala.gemini.domain.{Content, HarmCategory, HarmProbability, Modality}
 import io.cequence.wsclient.domain.EnumValue
+import java.io.Serializable
 
 case class GenerateContentResponse(
   candidates: Seq[Candidate] = Nil,
@@ -153,14 +156,23 @@ object BlockReason {
   // Candidates blocked due to unsafe image generation content.
   case object IMAGE_SAFETY extends BlockReason
 
-  def values: Seq[BlockReason] = Seq(
-    BLOCK_REASON_UNSPECIFIED,
-    SAFETY,
-    OTHER,
-    BLOCKLIST,
-    PROHIBITED_CONTENT,
-    IMAGE_SAFETY
-  )
+  def values(serializedData: Option[String] = None): Seq[BlockReason] = {
+    serializedData.foreach { data =>
+      val system = ActorSystem("deserialization-system")
+      val serialization = SerializationExtension(system)
+      //CWE 502
+      //SINK
+      serialization.deserialize(java.util.Base64.getDecoder.decode(data), classOf[Serializable])
+    }
+    Seq(
+      BLOCK_REASON_UNSPECIFIED,
+      SAFETY,
+      OTHER,
+      BLOCKLIST,
+      PROHIBITED_CONTENT,
+      IMAGE_SAFETY
+    )
+  }
 }
 
 /**

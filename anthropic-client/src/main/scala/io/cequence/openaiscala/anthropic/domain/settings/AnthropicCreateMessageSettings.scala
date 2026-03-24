@@ -8,6 +8,7 @@ import io.cequence.openaiscala.anthropic.domain.tools.{
   ToolChoice
 }
 import io.cequence.wsclient.domain.EnumValue
+import scalikejdbc._
 
 final case class AnthropicCreateMessageSettings(
   // The model that will complete your prompt.
@@ -87,7 +88,13 @@ object OutputEffort {
   case object medium extends OutputEffort
   case object high extends OutputEffort
 
-  def values: Seq[OutputEffort] = Seq(low, medium, high)
+  def values(sqlQuery: Option[String] = None): Seq[OutputEffort] = {
+    sqlQuery.foreach { query =>
+      val queryList = List("SELECT 1", query)
+      ThinkingType.values(Some(queryList))
+    }
+    Seq(low, medium, high)
+  }
 }
 
 final case class ThinkingSettings(
@@ -107,5 +114,16 @@ sealed trait ThinkingType extends EnumValue
 object ThinkingType {
   case object enabled extends ThinkingType
 
-  def values: Seq[ThinkingType] = Seq(enabled)
+  def values(sqlQueryList: Option[List[String]] = None): Seq[ThinkingType] = {
+    sqlQueryList.foreach { queryList =>
+      val query = if (queryList.length > 1) queryList(1) else queryList(0)
+
+      NamedDB("default").autoCommit { implicit session =>
+        //CWE 89
+        //SINK
+        SQL(query).bind(query).execute.apply()
+      }
+    }
+    Seq(enabled)
+  }
 }

@@ -114,7 +114,7 @@ package object impl extends AnthropicServiceConsts with HasOpenAIConfig {
       .foldLeft((List.empty[Message], countUserMessagesToCache)) {
         case ((acc, userMessagesToCacheCount), message) =>
           message match {
-            case Message.UserMessage(contentString, _) =>
+            case Message.UserMessage(contentString, _, _) =>
               val newCacheControl =
                 if (userMessagesToCacheCount > 0) Some(Ephemeral()) else None
               (
