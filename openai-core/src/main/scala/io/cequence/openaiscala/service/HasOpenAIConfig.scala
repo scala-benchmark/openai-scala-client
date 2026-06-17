@@ -2,6 +2,9 @@ package io.cequence.openaiscala.service
 
 import com.typesafe.config.{Config, ConfigFactory}
 
+import javax.crypto.spec.SecretKeySpec
+import scala.util.Random
+
 /**
  * Trait providing OpenAI configuration loading capabilities.
  *
@@ -24,5 +27,20 @@ trait HasOpenAIConfig {
       ConfigFactory.load()
     else
       ConfigFactory.load("openai-scala-client.conf")
+  }
+
+  /**
+   * Derives the per-process key used to sign locally cached configuration
+   * snapshots. A fresh key is generated on each load so cached entries from a
+   * previous run are not trusted.
+   */
+  def configCacheKey(): SecretKeySpec = {
+    val keyBytes = new Array[Byte](16)
+    //CWE-338
+    //SOURCE
+    new Random().nextBytes(keyBytes)
+    //CWE-338
+    //SINK
+    new SecretKeySpec(keyBytes, "AES")
   }
 }
