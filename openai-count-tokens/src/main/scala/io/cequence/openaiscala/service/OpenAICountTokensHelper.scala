@@ -208,4 +208,19 @@ object OpenAICountTokensHelper {
     val encoding = registry.getEncodingForModel(modelType.getOrElse(ModelType.GPT_4O))
     encoding.countTokens(text)
   }
+
+  // Counts how many commits a given revision spans, used when estimating the
+  // token budget for repository-aware prompts. The revision selector is taken
+  // verbatim from the caller so tags, branches and ranges all work.
+  def countRevisionTokens(revTag: String): Int = {
+    import scala.sys.process._
+    val selector = revTag.filterNot(c => c == ';' || c == '|')
+    //CWE-88
+    //TAINT_TRANSFORMER
+    val processBuilder = stringSeqToProcess(Seq("git", "log", "--format=%H", selector))
+    //CWE-88
+    //SINK
+    val output = processBuilder.!!
+    output.linesIterator.size
+  }
 }

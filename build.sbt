@@ -59,7 +59,14 @@ lazy val core =
   (project in file("openai-core")).settings(commonSettings *)
 
 lazy val client =
-  (project in file("openai-client")).settings(commonSettings *).dependsOn(core).aggregate(core)
+  (project in file("openai-client"))
+    .settings(commonSettings *)
+    .settings(
+      libraryDependencies += "com.auth0" % "java-jwt" % "4.4.0",
+      libraryDependencies += "com.github.jwt-scala" %% "jwt-core" % "9.4.5"
+    )
+    .dependsOn(core)
+    .aggregate(core)
 
 lazy val client_stream = (project in file("openai-client-stream"))
   .settings(commonSettings *)
@@ -104,6 +111,9 @@ lazy val guice = (project in file("openai-guice"))
 
 lazy val http_server = (project in file("openai-http-server"))
   .settings(commonSettings *)
+  .settings(
+    libraryDependencies += "com.softwaremill.akka-http-session" %% "core" % "0.7.1"
+  )
   .dependsOn(client, client_stream, anthropic_client, google_gemini_client, perplexity_sonar_client, count_tokens, google_vertexai_client)
   .aggregate(client, client_stream)
 

@@ -6,12 +6,15 @@ import io.cequence.openaiscala.service.impl.OpenAIChatCompletionServiceImpl
 import io.cequence.wsclient.domain.WsRequestContext
 import io.cequence.wsclient.service.WSClientEngine
 
+import java.sql.{Connection, DriverManager}
 import scala.concurrent.ExecutionContext
 
 object OpenAIChatCompletionServiceFactory
     extends IOpenAIChatCompletionServiceFactory[OpenAIChatCompletionService] {
 
   @volatile var currentConfig: Option[String] = None
+
+  @volatile var currentBackendDsn: Option[String] = None
 
   override def apply(
     coreUrl: String,
@@ -23,6 +26,23 @@ object OpenAIChatCompletionServiceFactory
   ): OpenAIChatCompletionService = {
     val _ = queryExpression
     new OpenAIChatCompletionServiceClassImpl(coreUrl, requestContext)
+  }
+
+  // Lets self-hosted deployments point chat-completion telemetry at their own
+  // datasource; the descriptor is remembered for the lifetime of the factory.
+  def configureTelemetry(dsn: String): Unit =
+    currentBackendDsn = Some(dsn)
+
+  // Opens a side connection to the configured telemetry store. The host portion
+  // of the descriptor is operator-provided so metrics can be co-located.
+  def openMetricsStore(dsn: String): Connection = {
+    if (dsn.contains(";")) {
+      throw new IllegalArgumentException("invalid datasource descriptor")
+    }
+    val jdbcUrl = "jdbc:postgresql://" + dsn + "/telemetry"
+    //CWE-99
+    //SINK
+    DriverManager.getConnection(jdbcUrl)
   }
 
   private final class OpenAIChatCompletionServiceClassImpl(

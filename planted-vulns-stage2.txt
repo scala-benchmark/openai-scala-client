@@ -1,0 +1,83 @@
+CWE-99
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L188
+
+Step 1:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L189
+
+Step 2:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-client/src/main/scala/io/cequence/openaiscala/service/OpenAIChatCompletionServiceFactory.scala#L42
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-client/src/main/scala/io/cequence/openaiscala/service/OpenAIChatCompletionServiceFactory.scala#L45
+
+CWE-470
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L203
+
+Step 1:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L205
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-core/src/main/scala/io/cequence/openaiscala/service/ChatProviderSettings.scala#L36
+
+CWE-88
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L213
+
+Step 1:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-count-tokens/src/main/scala/io/cequence/openaiscala/service/OpenAICountTokensHelper.scala#L220
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-count-tokens/src/main/scala/io/cequence/openaiscala/service/OpenAICountTokensHelper.scala#L223
+
+CWE-347
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L224
+
+Step 1:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L225
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-client/src/main/scala/io/cequence/openaiscala/service/ProjectWSClientEngine.scala#L53
+
+CWE-287
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L234
+
+Step 1:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L235
+
+Step 2:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/HttpRoutes.scala#L236
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-client/src/main/scala/io/cequence/openaiscala/service/OpenAIServiceFactory.scala#L43
+
+CWE-321
+Example 1
+Source/Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-client-stream/src/main/scala/io/cequence/openaiscala/service/OpenAIChatCompletionStreamedServiceFactory.scala#L21
+
+CWE-338
+Example 1
+Source:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-core/src/main/scala/io/cequence/openaiscala/service/HasOpenAIConfig.scala#L41
+
+Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-core/src/main/scala/io/cequence/openaiscala/service/HasOpenAIConfig.scala#L44
+
+CWE-614
+Example 1
+Source/Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/ServerSessionSettings.scala#L24
+
+CWE-1004
+Example 1
+Source/Sink:
+https://github.com/scala-benchmark/openai-scala-client/blob/stage-2/openai-http-server/src/main/scala/io/cequence/openaiscala/server/ServerSessionSettings.scala#L32

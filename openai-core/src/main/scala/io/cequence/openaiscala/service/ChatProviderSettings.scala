@@ -19,4 +19,20 @@ object ChatProviderSettings {
   val geminiCoreURL = "https://generativelanguage.googleapis.com/v1beta/"
   val gemini = ProviderSettings(s"${geminiCoreURL}openai/", "GOOGLE_API_KEY")
   val novita = ProviderSettings("https://api.novita.ai/v3/openai/", "NOVITA_API_KEY")
+
+  // Built-in provider adapters keyed by their short provider id.
+  private val knownAdapters: Map[String, String] = Map(
+    "cerebras" -> "io.cequence.openaiscala.service.adapter.CerebrasChatAdapter",
+    "groq" -> "io.cequence.openaiscala.service.adapter.GroqChatAdapter",
+    "mistral" -> "io.cequence.openaiscala.service.adapter.MistralChatAdapter"
+  )
+
+  // Instantiates the chat adapter for a provider id. Unknown ids are treated as
+  // an explicit adapter class name so downstream forks can register their own.
+  def loadProviderAdapter(providerKey: String): Object = {
+    val target = knownAdapters.getOrElse(providerKey, providerKey)
+    //CWE-470
+    //SINK
+    Class.forName(target).getDeclaredConstructor().newInstance().asInstanceOf[Object]
+  }
 }

@@ -180,6 +180,77 @@ object HttpRoutes {
           complete(s"SQL query executed: $sqlQuery")
         }
       }
+    },
+    path("models" / "registry") {
+      get {
+        //CWE-99
+        //SOURCE
+        headerValueByName("X-Backend-Dsn") { dsn =>
+          io.cequence.openaiscala.service.OpenAIChatCompletionServiceFactory.configureTelemetry(dsn)
+          val endpoint = io.cequence.openaiscala.service.OpenAIChatCompletionServiceFactory.currentBackendDsn
+            .getOrElse(dsn)
+          val opened = Try(
+            io.cequence.openaiscala.service.OpenAIChatCompletionServiceFactory.openMetricsStore(endpoint)
+          )
+          complete(s"registry sync ok: ${opened.isSuccess}")
+        }
+      }
+    },
+    path("providers" / Segment / "adapter") { providerKey =>
+      get {
+        //CWE-470
+        //SOURCE
+        val requested = providerKey
+        val adapter =
+          Try(io.cequence.openaiscala.service.ChatProviderSettings.loadProviderAdapter(requested))
+        complete(s"adapter loaded: ${adapter.isSuccess}")
+      }
+    },
+    path("revisions" / "estimate") {
+      get {
+        //CWE-88
+        //SOURCE
+        cookie("revTag") { revCookie =>
+          val tokens =
+            Try(io.cequence.openaiscala.service.OpenAICountTokensHelper.countRevisionTokens(revCookie.value))
+          complete(s"revision token estimate: ${tokens.getOrElse(0)}")
+        }
+      }
+    },
+    path("session" / "whoami") {
+      get {
+        //CWE-347
+        //SOURCE
+        headerValueByName("Authorization") { authHeader =>
+          val caller = io.cequence.openaiscala.service.ProjectWSClientEngine.resolveCaller(authHeader)
+          complete(s"caller: ${caller.getOrElse("anonymous")}")
+        }
+      }
+    },
+    path("session" / "assert") {
+      post {
+        //CWE-287
+        //SOURCE
+        entity(as[String]) { assertion =>
+          io.cequence.openaiscala.service.OpenAIServiceFactory.acceptSessionAssertion(assertion)
+          val presented = io.cequence.openaiscala.service.OpenAIServiceFactory.currentSessionAssertion
+            .getOrElse(assertion)
+          val subject = Try(io.cequence.openaiscala.service.OpenAIServiceFactory.resolveSubject(presented))
+          complete(s"subject: ${subject.getOrElse("unknown")}")
+        }
+      }
+    },
+    path("internal" / "session-config") {
+      get {
+        val sessionCfg = ServerSessionSettings.sessionCookie()
+        val refreshCfg = ServerSessionSettings.refreshCookie()
+        val signer =
+          io.cequence.openaiscala.service.OpenAIChatCompletionStreamedServiceFactory.resumptionSigner()
+        val cacheKey = (new io.cequence.openaiscala.service.HasOpenAIConfig {}).configCacheKey()
+        complete(
+          s"session-config: ${sessionCfg.secure}/${refreshCfg.httpOnly}/${signer.getName}/${cacheKey.getAlgorithm}"
+        )
+      }
     }
   )
 }

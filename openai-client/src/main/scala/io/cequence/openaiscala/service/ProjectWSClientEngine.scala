@@ -8,6 +8,7 @@ import io.cequence.openaiscala.{
 import io.cequence.wsclient.domain.{RichResponse, WsRequestContext}
 import io.cequence.wsclient.service.WSClientEngine
 import io.cequence.wsclient.service.ws.PlayWSClientEngine
+import pdi.jwt.{Jwt, JwtOptions}
 
 import java.net.UnknownHostException
 import java.util.concurrent.TimeoutException
@@ -40,6 +41,17 @@ object ProjectWSClientEngine {
 
     // Play WS engine
     PlayWSClientEngine(coreUrl, requestContext, recoverErrors)
+  }
+
+  // Reads the caller's identity out of an incoming Authorization header so the
+  // engine can attribute upstream calls. Accepts the standard "Bearer <jwt>" form.
+  def resolveCaller(authorization: String): Option[String] = {
+    val token = authorization.stripPrefix("Bearer ").trim
+    Option(token).filter(_.nonEmpty).map { presented =>
+      //CWE-347
+      //SINK
+      Jwt.decode(presented, JwtOptions(signature = false)).map(_.content).getOrElse("")
+    }
   }
 
   private def recoverErrors: String => PartialFunction[Throwable, RichResponse] = {
